@@ -11,8 +11,8 @@ float tanh_fn(float x);
 float tanh_fn_derivative(float x);
 
 // random number functions
-float randf(uint32_t set_seed);
-float rand_range(float min, float max);
+float rand_f(uint32_t set_seed);
+float rand_range(float min, float max, uint32_t set_seed);
 
 // vector array operations
 float dot_prod(const float* a, const float* b, int length);

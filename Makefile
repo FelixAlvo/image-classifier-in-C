@@ -25,7 +25,7 @@ TARGET = $(BUILD_DIR)/catDog
 
 # build rule
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -lm
 
 # compile .c files in to .o files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
