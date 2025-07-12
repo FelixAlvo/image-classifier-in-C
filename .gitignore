@@ -2,6 +2,7 @@
 build/
 
 # editor swap/backup files
+.vscode/
 *~
 *.swp
 
