@@ -1,0 +1,13 @@
+# build output
+build/
+
+# editor swap/backup files
+*~
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+#logs
+*.log
