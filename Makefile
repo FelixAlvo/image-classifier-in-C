@@ -14,7 +14,7 @@ OBJ_DIR = $(BUILD_DIR)/obj
 SRC_DIR = src
 
 # source files
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/neural_net.c
+SRCS = $(wildcard $(SRC_DIR)/*.c)
 
 # object files
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
