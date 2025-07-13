@@ -1,5 +1,6 @@
 #ifndef FLOAT_TOLERANCE
 #define FLOAT_TOLERANCE 0.0001f
+#define REGISTER_TEST(fn) {#fn, fn}
 #endif
 
 #include "test.h"
@@ -454,63 +455,33 @@ void test_math_transpose() {
     log_test("test_math_transpose", passed);
 }
 
-void test_run_test(int test){
-    switch (test)
-    {
-    case TEST_MATH_SIGMOID:
-        test_math_sigmoid();
-        break;
-    case TEST_MATH_SIGMOID_DERIVATIVE:
-        test_math_sigmoid_derivative();
-        break;
-    case TEST_MATH_RELU:
-        test_math_relu();
-        break;
-    case TEST_MATH_RELU_DERIVATIVE:
-        test_math_relu_derivative();
-        break;
-    
-    case TEST_MATH_NORMALIZE:
-        test_math_normalize();
-        break;
-    case TEST_MATH_RAND_F:
-        test_math_rand_f();
-        break;
-    case TEST_MATH_RAND_RANGE:
-        test_math_rand_range();
-        break;
+static TestCase test_registry[] = {
+    REGISTER_TEST(test_math_sigmoid),
+    REGISTER_TEST(test_math_sigmoid_derivative),
+    REGISTER_TEST(test_math_relu),
+    REGISTER_TEST(test_math_relu_derivative),
+    REGISTER_TEST(test_math_normalize),
+    REGISTER_TEST(test_math_rand_f),
+    REGISTER_TEST(test_math_rand_range),
+    REGISTER_TEST(test_math_dot_prod),
+    REGISTER_TEST(test_math_add_arrays),
+    REGISTER_TEST(test_math_scale_array),
+    REGISTER_TEST(test_math_mat_mul),
+    REGISTER_TEST(test_math_transpose),
+};
 
-    case TEST_MATH_DOT_PROD:
-        test_math_dot_prod();
-        break;
-    case TEST_MATH_ADD_ARRAYS:
-        test_math_add_arrays();
-        break;
-    case TEST_MATH_SCALE_ARRAY:
-        test_math_scale_array();
-        break;
+void test_run_test(int test_id){
 
-    case TEST_MATH_MAT_MUL:
-        test_math_mat_mul();
-        break;
-    case TEST_MATH_TRANSPOSE:
-        test_math_transpose();
-        break;
+    static const int test_registry_count = sizeof(test_registry) / sizeof(TestCase);
 
-    default:
-        test_math_sigmoid();
-        test_math_sigmoid_derivative();
-        test_math_relu();
-        test_math_relu_derivative();
-        test_math_normalize();
-        test_math_rand_f();
-        test_math_rand_range();
-        test_math_dot_prod();
-        test_math_add_arrays();
-        test_math_scale_array();
-        test_math_mat_mul();
-        test_math_transpose();
-        break;
+    if (test_id == TEST_ALL) {
+        for (int i = 0; i < test_registry_count; i++) {
+            test_registry[i].func();
+        }
+    } else if (test_id >= 1 && test_id <= test_registry_count) {
+        test_registry[test_id - 1].func();
+    } else {
+        log_warn("Unknown test ID: %d", test_id);
     }
 }
 
