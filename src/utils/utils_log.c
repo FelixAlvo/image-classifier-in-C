@@ -37,5 +37,6 @@ void log_test(const char* label, bool passed) {
 }
 
 void log_set_logfile(const char* filepath){
-    
+    (void)filepath; // suppress unused warning
+    log_warn("log_set_logfile is not implemented.");
 }

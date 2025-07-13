@@ -45,7 +45,7 @@ float math_relu(float x){ // relu function for nerual network, returns 0 if x < 
     return x < 0 ? 0.0f : x;
 }
 float math_relu_derivative(float x){ // relu function derivative
-    return x < 0 ? 0.0f : 1.0f;
+    return x <= 0 ? 0.0f : 1.0f;
 }
 
 
@@ -68,6 +68,7 @@ float math_rand_f(bool random_seed){ // generate a random number between 0.0 and
     uint32_t c = LCG_INCREMENT;
     uint32_t m = LCG_MODULUS;
 
+    seed = (a * seed + c) % m;  // LCG formula
     seed = (a * seed + c) % m;  // LCG formula
     
     random_number = math_normalize(seed, m); // we normalize by m since that's the largest possible number for the seed because of (mod n)
@@ -111,7 +112,11 @@ void math_scale_array(float* array, float scalar, int length){ // scales all ele
 // matrix operation functions
 
 void math_mat_mul(const float* A, const float* B, float* out, int A_rows, int A_cols_B_rows, int B_cols){ // multiplies 2 matricies together in to a pre allocated out matrix "out"
-
+    
+    if (A_rows <= 0 || B_cols <= 0 || A_cols_B_rows <= 0) { // matrix validatio
+        log_error("Invalid matrix dimensions");
+        return;
+    }
     for (int i = 0; i < A_rows*B_cols; i++){ // resetting the out matrix
         out[i] = 0.0f;
     }
@@ -137,7 +142,10 @@ void math_mat_mul(const float* A, const float* B, float* out, int A_rows, int A_
 }
 
 void math_transpose(const float* in, float* out, int rows_in, int cols_in){ // "rotates" the matrix along its main axis, essentially swaps rows and columns
-
+    if (rows_in <= 0 || cols_in <= 0) { // matrix validation
+        log_error("Invalid matrix dimensions");
+        return;
+    }
     for (int row_T = 0; row_T < cols_in; row_T++){ // Since the "new" matrix will have swapped rows and columns with "old" one, i've decided to make
         // the for loop iterate over the indexes of the "new" matrix, so, row_T represents the row of the transposed matrix, same with col_T
         // and so, vice versa, row_T represents the rows of the old matrix, so i can just use that as a substitute to find the right index on the old matrix
