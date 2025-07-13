@@ -1,13 +1,15 @@
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 199309L // needed for CLOCK_REALTIME macro from time.h to work
+#endif
 
+#include "config.h"
+#include "utils_math.h"
+#include "utils_log.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
 #include <stdbool.h>
-#include "config.h"
-#include "utils_math.h"
-#include "utils_log.h"
 
 
 uint32_t seed_generator(bool random_seed){  // local helper function to generate seed for PRNG (if random_seed is true, a seed which is based on current time in nanoseconds is generated)
@@ -32,17 +34,17 @@ uint32_t seed_generator(bool random_seed){  // local helper function to generate
 
 // neural network manager functions
 
-float sigmoid(float x){ // sigmoid function for neural network nodes 
+float math_sigmoid(float x){ // sigmoid function for neural network nodes 
     return 1.0/(1.0f+expf(-x));
 }
-float sigmoid_derivative(float x){ // sigmoid function derivative
-    float s = sigmoid(x);
+float math_sigmoid_derivative(float x){ // sigmoid function derivative
+    float s = math_sigmoid(x);
     return s*(1.0f-s);
 }
-float relu(float x){ // relu function for nerual network, returns 0 if x < 0, else returns x
+float math_relu(float x){ // relu function for nerual network, returns 0 if x < 0, else returns x
     return x < 0 ? 0.0f : x;
 }
-float relu_derivative(float x){ // relu function derivative
+float math_relu_derivative(float x){ // relu function derivative
     return x < 0 ? 0.0f : 1.0f;
 }
 
@@ -50,12 +52,12 @@ float relu_derivative(float x){ // relu function derivative
 
 // random number generator and normalization functions
 
-float normalize(uint32_t value, uint32_t normalization_value) { // normalize a value so its between 0.0 and 1.0
+float math_normalize(uint32_t value, uint32_t normalization_value) { // normalize a value so its between 0.0 and 1.0
     return (float)value / (float)normalization_value;
 }
 
 
-float rand_f(bool random_seed){ // generate a random number between 0.0 and 1.0 (if random_seed is true, a random seed will be generated, if false, a set seed is chosen)
+float math_rand_f(bool random_seed){ // generate a random number between 0.0 and 1.0 (if random_seed is true, a random seed will be generated, if false, a set seed is chosen)
     float random_number;
     
     // the seed to start LCG
@@ -68,13 +70,13 @@ float rand_f(bool random_seed){ // generate a random number between 0.0 and 1.0 
 
     seed = (a * seed + c) % m;  // LCG formula
     
-    random_number = normalize(seed, m); // we normalize by m since that's the largest possible number for the seed because of (mod n)
+    random_number = math_normalize(seed, m); // we normalize by m since that's the largest possible number for the seed because of (mod n)
 
     return random_number;
 }
 
-float rand_range(float min, float max, bool random_seed){ // return a ranodm float between min and max (if random_seed is true, a random seed will be generated, if false, a set seed is chosen)
-    float random_norm_number = rand_f(random_seed);
+float math_rand_range(float min, float max, bool random_seed){ // return a ranodm float between min and max (if random_seed is true, a random seed will be generated, if false, a set seed is chosen)
+    float random_norm_number = math_rand_f(random_seed);
     float range = max - min;
     return min + random_norm_number*range;
 }
@@ -82,7 +84,7 @@ float rand_range(float min, float max, bool random_seed){ // return a ranodm flo
 
 // vector array operation functions
 
-float dot_prod(const float* a, const float* b, int length){ // returns the dotproduct of 2 matricies
+float math_dot_prod(const float* a, const float* b, int length){ // returns the dotproduct of 2 matricies
     float dot_prod_value = 0;
 
     for (int i = 0; i < length; i++){ // loops through the length of the vector arrays and multiplies their elements and adds them to dot_prod_value
@@ -92,13 +94,13 @@ float dot_prod(const float* a, const float* b, int length){ // returns the dotpr
     return dot_prod_value;
 }
 
-void add_arrays(const float* a, const float* b, float* out, int length){ // adds 2 arrays together (each element of each array) in to an out array "out"
+void math_add_arrays(const float* a, const float* b, float* out, int length){ // adds 2 arrays together (each element of each array) in to an out array "out"
     for (int i = 0; i < length; i++){ // loops htrough the length of the arrays and their elements together in the out array "out"
         out[i] = a[i] + b[i];
     }
 }
 
-void scale_array(float* array, float scalar, int length){ // scales all elements in an array according to the scalar
+void math_scale_array(float* array, float scalar, int length){ // scales all elements in an array according to the scalar
     for (int i = 0; i < length; i++){ // loops through the length of the array and multiplies the element with the scalar
         array[i] *= scalar;
     }
@@ -108,7 +110,7 @@ void scale_array(float* array, float scalar, int length){ // scales all elements
 
 // matrix operation functions
 
-void mat_mul(const float* A, const float* B, float* out, int A_rows, int A_cols_B_rows, int B_cols){ // multiplies 2 matricies together in to a pre allocated out matrix "out"
+void math_mat_mul(const float* A, const float* B, float* out, int A_rows, int A_cols_B_rows, int B_cols){ // multiplies 2 matricies together in to a pre allocated out matrix "out"
 
     for (int i = 0; i < A_rows*B_cols; i++){ // resetting the out matrix
         out[i] = 0.0f;
@@ -134,7 +136,7 @@ void mat_mul(const float* A, const float* B, float* out, int A_rows, int A_cols_
     }
 }
 
-void transpose(const float* in, float* out, int rows_in, int cols_in){ // "rotates" the matrix along its main axis, essentially swaps rows and columns
+void math_transpose(const float* in, float* out, int rows_in, int cols_in){ // "rotates" the matrix along its main axis, essentially swaps rows and columns
 
     for (int row_T = 0; row_T < cols_in; row_T++){ // Since the "new" matrix will have swapped rows and columns with "old" one, i've decided to make
         // the for loop iterate over the indexes of the "new" matrix, so, row_T represents the row of the transposed matrix, same with col_T
