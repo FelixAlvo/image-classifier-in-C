@@ -11,16 +11,16 @@ float tanh_fn(float x);
 float tanh_fn_derivative(float x);
 
 // random number functions
-float rand_f(uint32_t set_seed);
-float rand_range(float min, float max, uint32_t set_seed);
+float rand_f(bool random_seed);
+float rand_range(float min, float max, bool random_seed);
 
 // vector array operations
 float dot_prod(const float* a, const float* b, int length);
 void add_arrays(const float* a, const float* b, float* out, int length);
-void scale_array(float* araray, float scalar, int length);
+void scale_array(float* array, float scalar, int length);
 
 // matrix operations
-void mat_mul(const float* A, const float* b, float* out, int m, int n, int p);
+void mat_mul(const float* A, const float* B, float* out, int m, int n, int p);
 void transpose(const float* in, float* out, int rows, int cols);
 
 // extras
