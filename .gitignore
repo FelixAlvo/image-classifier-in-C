@@ -1,5 +1,6 @@
 # build output
 build/
+test/test_build
 
 # editor swap/backup files
 .vscode/
