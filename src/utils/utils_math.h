@@ -15,6 +15,7 @@ float math_loss_mse(const float* predicted, const float* expected, int length);
 // random number functions
 float math_rand_f(bool random_seed);
 float math_rand_range(float min, float max, bool random_seed);
+int math_rand_i(int min, int max, bool random_seed);
 
 // vector array operations
 float math_dot_prod(const float* a, const float* b, int length);

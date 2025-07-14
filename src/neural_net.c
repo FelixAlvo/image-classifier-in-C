@@ -70,3 +70,20 @@ void nn_backprop(NeuralNetwork* nn, const float* target, float learning_rate){
         layer_apply_gradients(nn->layers[i], learning_rate);
     }
 }
+
+int nn_predict(NeuralNetwork* nn, float* input) {
+    nn_forward(nn, input);
+
+    int max_index = 0;
+    float max_value = nn->layers[nn->num_layers - 2]->outputs[0];
+
+    for (int i = 1; i < nn->layers[nn->num_layers - 2]->output_size; i++) {
+        float out = nn->layers[nn->num_layers - 2]->outputs[i];
+        if (out > max_value) {
+            max_value = out;
+            max_index = i;
+        }
+    }
+    
+    return max_index;  // 0 = cat, 1 = dog
+}

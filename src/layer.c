@@ -29,7 +29,7 @@ Layer* create_layer(int input_size, int output_size){
 
 if (!layer || !layer->weights || !layer->biases || !layer->outputs || !layer->deltas) {
     log_error("Failed to allocate memory for layer");
-    free_layer(layer);  // cleanup
+    free_layer(layer);
     return NULL;
 }
 

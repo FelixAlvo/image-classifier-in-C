@@ -4,60 +4,59 @@
 #include "utils_log.h"
 #include "utils_math.h"
 #include "image_loader.h"
-#include "stdio.h"
+#include "data.h"
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
 
 int main() {
-    // Load input image
-    Image* img = il_load_pgm("images/resized.pgm");
-    if (!img || img->pixels == NULL) {
-        log_error("failed to load training image");
+    Dataset* dataset = load_dataset("data_set");
+    if (!dataset || dataset->count == 0) {
+        log_error("Failed to load dataset");
         return 1;
     }
 
-    int input_size = img->width * img->height;
-    float* input = malloc(sizeof(float) * input_size);
-    for (int i = 0; i < input_size; i++) {
-        input[i] = math_normalize((float)img->pixels[i], img->maxval);
-    }
+    log_info("Loaded %d training examples", dataset->count);
 
-    // Label: 1 for cat → [1.0, 0.0]
-    float target[2] = {1.0f, 0.0f};
-
-    // Create network
-    int sizes[] = {input_size, 64, 2};
+    // Create neural network
+    int input_size = 64 * 64;  // match your images
+    int sizes[] = { input_size, 64, 2 };
     NeuralNetwork* nn = create_nn(3, sizes);
-    nn_init_weights_uniform(nn, -0.5f, 0.5f, RANDOM_WEIGHTS_SEED, RANDOM_BIAS_SEED);
+    nn_init_weights_uniform(nn, -0.5f, 0.5f, true, true);
 
-    log_info("input_size = %d", input_size);
-    log_info("image: %dx%d", img->width, img->height);
+    float learning_rate = LEARNING_RATE;
+    int epochs = EPOCHS;
 
-    // Train for a few epochs
-    float learning_rate = 0.1f;
-    for (int epoch = 0; epoch < 1000; epoch++) {
-        nn_forward(nn, input);
-        int last = nn->num_layers - 2;
-        float loss = math_loss_mse(nn->layers[last]->outputs, target, 2);
-        nn_backprop(nn, target, learning_rate);
+    for (int epoch = 0; epoch < epochs; epoch++) {
+        shuffle_dataset(dataset);
+        float total_loss = 0.0f;
 
-        if (epoch % 100 == 0) {
-            log_info("epoch %d, loss = %f", epoch, loss);
+        // Loop over all training examples
+        for (int i = 0; i < dataset->count; i++) {
+            TrainingExample* ex = &dataset->examples[i];
+
+            nn_forward(nn, ex->input);
+            total_loss += math_loss_mse(nn->layers[2 - 1]->outputs, ex->target, 2);
+            nn_backprop(nn, ex->target, learning_rate);
         }
+
+        log_info("Epoch %d - avg loss: %f", epoch, total_loss / dataset->count);
     }
 
-    // Final output
-    printf("Final output: [");
-    for (int i = 0; i < 2; i++) {
-        printf("%f", nn->layers[2 - 1]->outputs[i]);
-        if (i < 1) printf(", ");
-    }
-    printf("]\n");
+    free_dataset(dataset);
 
-    // Cleanup
-    il_free_image(img);
+    Image* test_img = il_load_pgm("data_set/dog/dog1.pgm");
+    float* input = malloc(sizeof(float) * (test_img->width * test_img->height));
+    for (int i = 0; i < test_img->width * test_img->height; i++) {
+        input[i] = (float)test_img->pixels[i] / test_img->maxval;
+    }
+
+    int predicted = nn_predict(nn, input);
+    printf("Prediction: %s\n", predicted == 0 ? "cat" : "dog");
+
     free(input);
-    free_nn(nn);
+    il_free_image(test_img);
+    
     return 0;
 }

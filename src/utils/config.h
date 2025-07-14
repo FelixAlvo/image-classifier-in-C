@@ -45,7 +45,8 @@
 
 #define MAGIC_NUMBER_P2 "P2"
 
-
+#define LEARNING_RATE 0.5f
+#define EPOCHS 10
 
 
 #endif

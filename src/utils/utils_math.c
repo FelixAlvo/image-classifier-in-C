@@ -82,6 +82,10 @@ float math_rand_range(float min, float max, bool random_seed){ // return a ranod
     return min + random_norm_number*range;
 }
 
+int math_rand_i(int min, int max, bool random_seed) {
+    float r = math_rand_range((float)min, (float)(max + 1), random_seed);
+    return (int)r;
+}
 
 // vector array operation functions
 
