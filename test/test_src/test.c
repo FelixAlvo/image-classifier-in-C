@@ -8,6 +8,9 @@
 #include "utils_math.h"
 #include "config.h"
 #include "image_loader.h"
+#include "layer.h"
+#include "neural_net.h"
+#include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
 
@@ -456,6 +459,25 @@ void test_math_transpose() {
     log_test("test_math_transpose", passed);
 }
 
+void test_math_loss_mse() {
+    log_info("running test_math_loss_mse...");
+    bool passed = true;
+
+    float predicted[] = { 0.9f, 0.2f };
+    float expected[]  = { 1.0f, 0.0f };
+    int length = 2;
+
+    float result = math_loss_mse(predicted, expected, length);
+    float expected_loss = 0.025f;
+
+    if (!float_equals(result, expected_loss)) {
+        log_error("test_math_loss_mse fail, got: %f, expected: %f", result, expected_loss);
+        passed = false;
+    }
+
+    log_test("test_math_loss_mse", passed);
+}
+
 void test_il_load_pgm() {
     log_info("Running test_il_load_pgm...");
     bool passed = true;
@@ -512,6 +534,107 @@ void test_il_load_pgm() {
     log_test("test_il_load_pgm", passed);
 }
 
+void test_layer_forward() {
+    log_info("runing test_layer_forward...");
+    bool passed = true;
+
+    Layer* layer = create_layer(2, 1);
+
+    layer->weights[0] = 0.5f;
+    layer->weights[1] = -0.25f;
+    layer->biases[0] = 0.0f;
+
+    float input[2] = { 1.0f, 2.0f };
+
+    layer_forward(layer, input);
+
+    float expected = math_sigmoid(0.5f * 1.0f + -0.25f * 2.0f);  // 0.0
+
+    if (!float_equals(layer->outputs[0], expected)) {
+        log_error("test_layer_forward fail, got: %f, expected: %f", layer->outputs[0], expected);
+        passed = false;
+    }
+
+    free_layer(layer);
+    log_test("test_layer_forward", passed);
+}
+
+void test_nn_forward() {
+    log_info("runing test_layer_forward...");
+    bool passed = true;
+
+    int sizes[] = {4, 5, 2};
+    NeuralNetwork* nn = create_nn(3, sizes);
+
+    // Fill layer 0 weights
+    for (int i = 0; i < sizes[1]; i++) {
+        for (int j = 0; j < sizes[0]; j++) {
+            nn->layers[0]->weights[i * sizes[0] + j] = 0.1f * (i + 1);
+        }
+        nn->layers[0]->biases[i] = 0.0f;
+    }
+
+    // Fill layer 1 weights
+    for (int i = 0; i < sizes[2]; i++) {
+        for (int j = 0; j < sizes[1]; j++) {
+            nn->layers[1]->weights[i * sizes[1] + j] = 0.05f * (j + 1);
+        }
+        nn->layers[1]->biases[i] = 0.0f;
+    }
+
+    float input[4] = {1.0f, 0.5f, -1.0f, 2.0f};
+    nn_forward(nn, input);
+
+    // Just check that output values are finite and not NaN
+    for (int i = 0; i < sizes[2]; i++) {
+        float out = nn->layers[1]->outputs[i];
+        if (!(out >= 0.0f && out <= 1.0f)) passed = false;
+    }
+
+    free_nn(nn);
+    log_test("test_nn_forward", passed);
+}
+
+void test_nn_real_input() {
+    log_info("running test_nn_real_input...");
+
+    // Load a real image
+    Image* img = il_load_pgm("images/apollonian_gasket.ascii.pgm");
+    if (!img || img->pixels == NULL) {
+        log_error("Failed to load image");
+        return;
+    }
+
+    // Normalize pixels to float[0.0, 1.0]
+    int input_size = img->width * img->height;
+    float* input = malloc(sizeof(float) * input_size);
+    for (int i = 0; i < input_size; i++) {
+        input[i] = math_normalize((float)img->pixels[i], img->maxval);
+    }
+
+    // Build network
+    int sizes[] = { input_size, 32, 2 };
+    NeuralNetwork* nn = create_nn(3, sizes);
+
+    // Optional: randomize weights if you want (right now they're probably 0 or uninitialized)
+    nn_init_weights_uniform(nn, -1.0f, 1.0f, !RANDOM_WEIGHTS_SEED, !RANDOM_BIAS_SEED);
+    // Run forward pass
+    nn_forward(nn, input);
+
+    // Print output
+    printf("nn->outputs = [");
+    for (int i = 0; i < sizes[2]; i++) {
+        printf("%f", nn->layers[1]->outputs[i]);
+        if (i < sizes[2] - 1) printf(", ");
+    }
+    printf("]\n");
+
+    // Cleanup
+    il_free_image(img);
+    free(input);
+    free_nn(nn);
+}
+
 static TestCase test_registry[] = {
     REGISTER_TEST(test_math_sigmoid),
     REGISTER_TEST(test_math_sigmoid_derivative),
@@ -525,7 +648,11 @@ static TestCase test_registry[] = {
     REGISTER_TEST(test_math_scale_array),
     REGISTER_TEST(test_math_mat_mul),
     REGISTER_TEST(test_math_transpose),
+    REGISTER_TEST(test_math_loss_mse),
     REGISTER_TEST(test_il_load_pgm),
+    REGISTER_TEST(test_layer_forward),
+    //REGISTER_TEST(test_nn_forward),
+    REGISTER_TEST(test_nn_real_input),
 };
 
 void test_run_test(int test_id){

@@ -157,3 +157,15 @@ void math_transpose(const float* in, float* out, int rows_in, int cols_in){ // "
         }
     }
 }
+
+
+float math_loss_mse(const float* predicted, const float* expected, int length){
+    float loss = 0;
+    float diff;
+    for (int i = 0; i < length; i++){
+        float diff = predicted[i] - expected[i];
+        loss += diff*diff;
+    }
+    loss/=length;
+    return loss;
+}

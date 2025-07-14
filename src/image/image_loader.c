@@ -19,16 +19,16 @@ Image* il_load_pgm(const char* filepath){
     FILE* file;
     file = fopen(filepath, "r");
     if (file == NULL){
-        log_error("error reading file: %c", filepath);
-        il_free_image(pgm_image);
-        return;
+        log_error("error reading file: %s", filepath);
+        free(pgm_image);
+        return NULL;
     }
 
     char magic_number[4];
     fscanf(file, "%2s", magic_number);
     if (strcmp(magic_number, MAGIC_NUMBER_P2) != 0) {
         log_info("Invalid magic number for image %s\nMagic number: %s", filepath, magic_number);
-        return;
+        return pgm_image;
     }
     fgetc(file); // skip the new line character \n
 
@@ -53,6 +53,7 @@ Image* il_load_pgm(const char* filepath){
 
     pgm_image->width = width;
     pgm_image->height = height;
+    pgm_image->maxval = maxval;
     
     int size = width * height;
 

@@ -25,9 +25,15 @@
 
 #define TEST_IL_LOAD_PGM 1001
 
+#define TEST_LAYER_FORWARD 1101
+#define TEST_NN_FOWRAD 1102
+#define TEST_NN_REAL_INPUT = 1103
+
 // seed logic for PRNG generator
 #define RANDOM_SEED true
 #define SET_SEED 128434667
+#define RANDOM_WEIGHTS_SEED true
+#define RANDOM_BIAS_SEED true
 
 
 // LCG constants for PRNG generator
@@ -38,6 +44,8 @@
 // Image-handler
 
 #define MAGIC_NUMBER_P2 "P2"
+
+
 
 
 #endif
