@@ -63,13 +63,6 @@ Image* il_load_pgm(const char* filepath){
         pgm_image->pixels[i] = (unsigned char) pixel;
     }
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            log_info("%3d ", pgm_image->pixels[y * width + x]);
-        }
-        log_info("\n");
-    }
-
     fclose(file);
     return pgm_image;
 }

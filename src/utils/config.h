@@ -23,6 +23,8 @@
 #define TEST_MATH_MAT_MUL 301
 #define TEST_MATH_TRANSPOSE 302
 
+#define TEST_IL_LOAD_PGM 1001
+
 // seed logic for PRNG generator
 #define RANDOM_SEED true
 #define SET_SEED 128434667

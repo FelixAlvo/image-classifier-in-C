@@ -7,6 +7,7 @@
 #include "utils_log.h"
 #include "utils_math.h"
 #include "config.h"
+#include "image_loader.h"
 #include <math.h>
 #include <stdbool.h>
 
@@ -455,6 +456,62 @@ void test_math_transpose() {
     log_test("test_math_transpose", passed);
 }
 
+void test_il_load_pgm() {
+    log_info("Running test_il_load_pgm...");
+    bool passed = true;
+
+    const char* image_path_1 = "test/test_images/test_image1.pgm";
+    const char* image_path_2 = "test/test_images/test_image2.pgm";
+
+    int expected_width_1 = 4;
+    int expected_height_1 = 4;
+    int expected_pixels_1[16] = {2,4,5,10,1,2,5,2,4,4,7,6,8,3,1,2};
+
+    int expected_width_2 = 3;
+    int expected_height_2 = 5;
+    int expected_pixels_2[15] = {15, 14, 13, 1, 2, 3,4,5,6,7,8,9,10,11,12};
+
+    Image* image_1 = il_load_pgm(image_path_1);
+    Image* image_2 = il_load_pgm(image_path_2);
+
+    if (image_1->width != expected_width_1){
+        log_error("image loader test_image1.pgm width got: %d, expected %d", image_1->width, expected_width_1);
+        passed = false;
+    }
+    if (image_1->height != expected_height_1){
+        log_error("image loader test_image1.pgm height got: %d, expected %d", image_1->height, expected_height_1);
+        passed = false;
+    }
+    if (image_2->width != expected_width_2){
+        log_error("image loader test_image2.pgm width got: %d, expected %d", image_2->width, expected_width_2);
+        passed = false;
+    }
+    if (image_2->height != expected_height_2){
+        log_error("image loader test_image2.pgm height got: %d, expected %d", image_2->height, expected_height_2);
+        passed = false;
+    }
+
+    for (int i = 0; i < image_1->width*image_1->height; i++){
+        if ((int)image_1->pixels[i] != expected_pixels_1[i]){
+            log_error("image loader test_image1.pgm wrong pixel, index: %d, got: %d, expected: %d", i, image_1->pixels[i], expected_pixels_1[i]);
+            passed = false;
+            break;
+        }
+    }
+    for (int i = 0; i < image_2->width*image_2->height; i++){
+        if ((int)image_2->pixels[i] != expected_pixels_2[i]){
+            log_error("image loader test_image2.pgm wrong pixel, index: %d, got: %d, expected: %d", i, image_2->pixels[i], expected_pixels_2[i]);
+            passed = false;
+            break;
+        }
+    }
+
+    il_free_image(image_1);
+    il_free_image(image_2);
+
+    log_test("test_il_load_pgm", passed);
+}
+
 static TestCase test_registry[] = {
     REGISTER_TEST(test_math_sigmoid),
     REGISTER_TEST(test_math_sigmoid_derivative),
@@ -468,6 +525,7 @@ static TestCase test_registry[] = {
     REGISTER_TEST(test_math_scale_array),
     REGISTER_TEST(test_math_mat_mul),
     REGISTER_TEST(test_math_transpose),
+    REGISTER_TEST(test_il_load_pgm),
 };
 
 void test_run_test(int test_id){

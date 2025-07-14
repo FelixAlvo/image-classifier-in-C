@@ -17,7 +17,7 @@ IMAGE_DIR = $(SRC_DIR)/image
 
 
 # include
-INCLUDES = -I$(SRC_DIR) -I$(UTILS_DIR) -I$(IMAGE_DIR)
+INCLUDES = -I$(SRC_DIR) -I$(UTILS_DIR) -I$(IMAGE_DIR) -Itest/test_images
 
 # source files
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
