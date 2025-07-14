@@ -41,5 +41,5 @@ This project uses **ASCII `.pgm` (P2)** grayscale images.
 
 ```bash
 make
-./classifier train    # For training (not implemented yet)
-./classifier test     # For testing (not implemented yet)
+./catDog     # For training (not implemented yet)
+./catDog test     # For testing (not implemented yet)
