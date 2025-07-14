@@ -3,7 +3,6 @@ CC = gcc
 # C-flags, Warnings-all, Optimization level 2
 Cflags = -Wall -O2
 
-INCLUDES = -Isrc -Isrc/utils
 
 # build directory
 BUILD_DIR = build
@@ -14,17 +13,24 @@ OBJ_DIR = $(BUILD_DIR)/obj
 # source directory
 SRC_DIR = src
 UTILS_DIR = $(SRC_DIR)/utils
+IMAGE_DIR = $(SRC_DIR)/image
+
+
+# include
+INCLUDES = -I$(SRC_DIR) -I$(UTILS_DIR) -I$(IMAGE_DIR)
 
 # source files
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 UTIL_FILES = $(wildcard $(UTILS_DIR)/*.c)
+IMAGE_FILES = $(wildcard $(IMAGE_DIR)/*.c)
 
-SRCS = $(SRC_FILES) $(UTIL_FILES)
+SRCS = $(SRC_FILES) $(UTIL_FILES) $(IMAGE_FILES)
 
 # object files
 OBJ_FILES = \
 	$(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES)) \
 	$(patsubst $(UTILS_DIR)/%.c,$(OBJ_DIR)/%.o,$(UTIL_FILES)) \
+	$(patsubst $(IMAGE_DIR)/%.c,$(OBJ_DIR)/%.o,$(IMAGE_FILES)) \
 	
 
 # Output binary name and directory
@@ -41,6 +47,10 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(UTILS_DIR)/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(IMAGE_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 

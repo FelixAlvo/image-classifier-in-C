@@ -1,6 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// loop exit condition
+#define LOOP_MAX_ITERATIONS 20
+
 // test function macros
 #define TEST_ALL 0
 
@@ -29,6 +32,10 @@
 #define LCG_MULTIPLIER 1103515245
 #define LCG_INCREMENT 12345
 #define LCG_MODULUS (1U << 31)
+
+// Image-handler
+
+#define MAGIC_NUMBER_P2 "P2"
 
 
 #endif
