@@ -1,7 +1,7 @@
 # build output
 build/
 test/test_build/
-dataset/
+data_set/
 
 # editor swap/backup files
 .vscode/
